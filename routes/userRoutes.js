@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const authToken = require('../middlewares/authToken')
-const validateData = require('../middlewares/validateData')
+const authToken = require('../middlewares/authToken');
+const validateData = require('../middlewares/validateData');
 
 
 // Swagger documentation for creating a user
@@ -59,7 +59,7 @@ router.post('/', validateData, userController.createUser);
  *      401:
  *        description: Unauthorized.
  */
-router.post('/login', validateData, userController.loginUser);
+router.post('/login', userController.loginUser);
 
 // Swagger documentation for getting all users
 /**
