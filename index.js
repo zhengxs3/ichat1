@@ -7,8 +7,46 @@ const mongoURI = process.env.MONGO_URI;
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
-app.use(express.json());
+const socketIo = require('socket.io');
+const cors = require('cors');
+const http = require('http');
 
+app.use(express.json());
+app.use(cors());
+
+// Socket IO CONFIG
+const server = http.createServer(app);
+const io = socketIo(server,{
+  cors: {
+    origin: '*',
+  }
+})
+
+let socketsConnected = new Set();
+let users = {};
+
+io.on('connection', (socket) => {
+  console.log(`New client connected: ${socket.id}`)
+  socketsConnected.add(socket.id);
+
+  socket.on('setUsername', (username) => {
+    users[socket.id] = username;
+    console.log("List :", users)
+    io.emit('updateUserList', users);
+  })
+
+  io.emit('clientsTotal', socketsConnected.size);
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected : ${socket.id}`)
+    socketsConnected.delete(socket.id);
+    delete users[socket.id];
+    io.emit('updateUserList', users);
+  });
+
+});
+
+// ROUTES CONFIG
 const apiRoutes = require('./routes');
 app.use('/api', apiRoutes);
 
@@ -51,6 +89,7 @@ app.get('/', (req,res)=> {
     res.send("Hello, bienvenue sur le service");
 })
 
-app.listen(port,() =>{
+
+server.listen(port,() =>{
     console.log("Serveur en ligne port 4001")
 })
