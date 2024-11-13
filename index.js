@@ -35,6 +35,12 @@ io.on('connection', (socket) => {
     io.emit('updateUserList', users);
   })
 
+  // Gérer coté back end la réception et l’émission des messages
+  socket.on('message',(message) => {
+    console.log("Message: ", message);
+    io.emit('message', message)
+  })
+
   io.emit('clientsTotal', socketsConnected.size);
 
   socket.on('disconnect', () => {
@@ -44,10 +50,15 @@ io.on('connection', (socket) => {
     io.emit('updateUserList', users);
   });
 
+  
+
+
+
 });
 
 // ROUTES CONFIG
 const apiRoutes = require('./routes');
+const { message } = require('./middlewares/validations/userValidation');
 app.use('/api', apiRoutes);
 
 const swaggerOptions = {
